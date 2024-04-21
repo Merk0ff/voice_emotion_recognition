@@ -18,5 +18,4 @@ task_routes = {"worker.celery_worker.long_task": "ml-queue"}
 task_track_started = True
 
 worker_concurrency = 1
-worker_prefetch_multiplier = 3
 worker_max_tasks_per_child = 1

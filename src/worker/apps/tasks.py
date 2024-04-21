@@ -1,3 +1,4 @@
+import json
 import logging
 import tempfile
 
@@ -79,7 +80,7 @@ class AudioEmotion:
             }
 
         # Update data in Redis
-        redis_db.hmset(uuid, {"predictions": predictions})
+        redis_db.hmset(uuid, {"predictions": json.dumps(predictions)})
 
 
 @celery_app.task(name="process_audio")

@@ -1,3 +1,4 @@
+import json
 import logging
 from urllib.parse import parse_qs, urlparse
 from uuid import uuid4
@@ -33,7 +34,7 @@ async def submit_url(background_tasks: BackgroundTasks, youtube_url: str = Form(
     task_id = str(uuid4())
 
     logger.info(f"Task ID: {task_id}, Processing URL: {youtube_url}")
-    celery_app.send_task("process_audio", args=[task_id, youtube_url])
+    celery_app.send_task("process_audio", args=[task_id, youtube_url], queue="ml-queue")
 
     return RedirectResponse(url=f"/result/{task_id}", status_code=303)
 
@@ -41,7 +42,6 @@ async def submit_url(background_tasks: BackgroundTasks, youtube_url: str = Form(
 @app.get("/result/{uuid}", response_class=HTMLResponse)
 async def get_data_row(uuid: str, request: Request):
     item = r.hgetall(uuid)
-    print(item)
 
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
@@ -49,12 +49,11 @@ async def get_data_row(uuid: str, request: Request):
     predictions_ready = item["predictions"] != ""
 
     if predictions_ready:
-        # Extract the YouTube video ID from the URL
         url_data = urlparse(item["url"])
         query_params = parse_qs(url_data.query)
         youtube_id = query_params.get("v")[0] if "v" in query_params else None
 
-        # Calculate the maximum prediction
+        item["predictions"] = json.loads(item["predictions"])
         max_emotion = max(item["predictions"], key=item["predictions"].get)
         max_value = item["predictions"][max_emotion] * 100  # Convert to percentage
     else:
