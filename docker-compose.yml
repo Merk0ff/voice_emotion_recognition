@@ -20,6 +20,7 @@ services:
       - HF_HOME=/root/.cache/
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    restart: always
 
   backend:
     build:
@@ -33,6 +34,7 @@ services:
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    restart: always
 
 volumes:
   redis_data:
