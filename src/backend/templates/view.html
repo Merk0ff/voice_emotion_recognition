@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Row Display</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f7f7f7;
+        }
+
+        .data-row {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .data-row h2 {
+            font-size: 1.2em;
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+
+        .predictions {
+            margin-top: 10px;
+        }
+
+        .prediction {
+            margin-bottom: 5px;
+        }
+
+        a {
+            color: #0077cc;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .max-prediction {
+            color: #d9534f;
+            /* Bootstrap 'btn-danger' color for emphasis */
+        }
+
+        .youtube-video {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="data-row">
+        <h2>UUID: {{ item.uuid }}</h2>
+        <div class="youtube-video">
+            {% if youtube_id %}
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/{{ youtube_id }}" frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen></iframe>
+            {% endif %}
+        </div>
+        <div class="predictions">
+            {% if predictions_ready %}
+            <div class="prediction max-prediction"><strong>Max Prediction:</strong> {{ max_emotion }} ({{ max_value |
+                round(3) }}%)</div>
+            {% for emotion, value in item.predictions.items() %}
+            <div class="prediction"><strong>{{ emotion.capitalize() }}:</strong> {{ (value * 100) | round(3) }}%</div>
+            {% endfor %}
+            {% else %}
+            <div class="prediction">Predictions are in progress...</div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+
+</html>

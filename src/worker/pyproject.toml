@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "worker"
+version = "0.1.0"
+description = ""
+authors = ["Philip Dukshtau"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.12"
+celery = { extras = ["redis"], version = "^5.4.0" }
+redis = "^5.0.3"
+aniemore = "^1.2.3"
+pydub = "^0.25.1"
+pytube = "^15.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
