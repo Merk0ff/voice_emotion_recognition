@@ -13,6 +13,8 @@ services:
       context: ./src/worker
       dockerfile: Dockerfile
     command: poetry run celery -A apps.celery_app worker --loglevel=info --concurrency=1
+    volumes:
+      - ./src/worker:/app
     depends_on:
       - redis
     environment:
@@ -25,6 +27,7 @@ services:
       dockerfile: Dockerfile
     command: poetry run uvicorn apps.app:app --host 0.0.0.0 --port 8080
     volumes:
+      - ./src/backend:/app
       - model_volume:/root/.cache/huggingface
     ports:
       - "8080:8080"

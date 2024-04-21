@@ -1,5 +1,7 @@
+from pathlib import Path
+
 from celery import Celery
 
-from .celery_config import *
-
 app = Celery("worker")
+
+Path("./downloads").mkdir(parents=True, exist_ok=True)
