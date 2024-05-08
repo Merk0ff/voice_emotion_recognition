@@ -2,7 +2,8 @@ import json
 import logging
 import tempfile
 
-import monkeypatch  # noqa
+from .monkeypatch import *  # noqa
+
 import redis
 import torch
 from aniemore.models import HuggingFaceModel
