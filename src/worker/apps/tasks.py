@@ -2,6 +2,7 @@ import json
 import logging
 import tempfile
 
+import monkeypatch  # noqa
 import redis
 import torch
 from aniemore.models import HuggingFaceModel
@@ -66,7 +67,7 @@ class AudioEmotion:
         redis_db.hmset(uuid, {"url": url, "predictions": ""})
 
         try:
-            self.download_and_convert_audio(url, filename)
+            # self.download_and_convert_audio(url, filename)
             predictions = self.mr.recognize(filename)
         except ValueError:
             predictions = {
