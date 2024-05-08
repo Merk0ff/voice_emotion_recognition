@@ -1,16 +1,14 @@
 import json
 import logging
-import tempfile
-
-from .monkeypatch import *  # noqa
+import os
 
 import redis
 import torch
+import yt_dlp
 from aniemore.models import HuggingFaceModel
 from aniemore.recognizers.multimodal import MultiModalRecognizer
 from aniemore.utils.speech2text import SmallSpeech2Text
 from pydub import AudioSegment
-from pytube import YouTube
 
 from .celery_app import app as celery_app
 
@@ -39,27 +37,35 @@ class AudioEmotion:
 
     @staticmethod
     def download_and_convert_audio(url, output_filename):
-        # Download the audio
-        with tempfile.NamedTemporaryFile() as temp_file:
-            temp_filename = temp_file.name
+        ydl_opts = {
+            "format": "bestaudio/best",
+            "outtmpl": output_filename.rstrip(".wav"),
+            "postprocessors": [
+                {
+                    "key": "FFmpegExtractAudio",
+                    "preferredcodec": "wav",
+                    "preferredquality": "192",
+                }
+            ],
+        }
 
-            # Download the audio
-            yt = YouTube(url)
-            audio_stream = yt.streams.filter(only_audio=True).first()
-            audio_stream.download(filename=temp_filename)
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info_dict = ydl.extract_info(url, download=True)
+            audio_file = ydl.prepare_filename(info_dict)
 
-            video_duration = yt.length
-            if video_duration > 300:  # 5 minutes in seconds
-                raise ValueError("Video is longer than 5 minutes")
+        video_duration = info_dict.get("duration", 0)
+        if video_duration > 300:
+            os.remove(audio_file)
+            raise ValueError("Video is longer than 5 minutes")
 
-            # Load the audio file
-            audio = AudioSegment.from_file(temp_filename, format="mp4")
+        # Load the audio file
+        audio = AudioSegment.from_file(output_filename)
 
-            # Convert the audio to mono
-            audio = audio.set_channels(1)
+        # Convert the audio to mono
+        audio = audio.set_channels(1)
 
-            # Save the audio as an OGG file
-            audio.export(output_filename, format="wav")
+        # Save the audio as a WAV file
+        audio.export(output_filename, format="wav")
 
     def pipline(self, uuid, url):
         filename = f"./downloads/{uuid}.wav"
@@ -68,7 +74,7 @@ class AudioEmotion:
         redis_db.hmset(uuid, {"url": url, "predictions": ""})
 
         try:
-            # self.download_and_convert_audio(url, filename)
+            self.download_and_convert_audio(url, filename)
             predictions = self.mr.recognize(filename)
         except ValueError:
             predictions = {
