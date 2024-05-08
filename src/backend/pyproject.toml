@@ -4,6 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["Philip Dukshtau"]
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -12,7 +13,7 @@ fastapi = "^0.110.2"
 uvicorn = "^0.29.0"
 jinja2 = "^3.1.3"
 python-multipart = "^0.0.9"
-celery = {extras = ["redis"], version = "^5.4.0"}
+celery = { extras = ["redis"], version = "^5.4.0" }
 
 
 [build-system]
